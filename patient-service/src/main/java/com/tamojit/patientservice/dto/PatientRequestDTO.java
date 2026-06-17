@@ -1,5 +1,6 @@
 package com.tamojit.patientservice.dto;
 
+import com.tamojit.patientservice.dto.validators.CreatePatientValidationGroup;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -19,7 +20,7 @@ public class PatientRequestDTO {
     @NotBlank(message = "Date of Birth is required")
     private String dateOfBirth;
 
-    @NotBlank(message = "Registration Date is required")
+    @NotBlank(groups = CreatePatientValidationGroup.class, message = "Registration Date is required")
     private String registeredDate;
 
     public @NotBlank(message = "Name is required") @Size(max = 100, message = "Name cannot exceed 100 characters") String getName() {
@@ -58,6 +59,7 @@ public class PatientRequestDTO {
         this.dateOfBirth = dateOfBirth;
     }
 
+    // validators nott required here as we only want NotBlank `registerDate` in POST path, not PUT
     public String getRegisteredDate() {
         return registeredDate;
     }
