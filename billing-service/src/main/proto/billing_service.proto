@@ -1,0 +1,22 @@
+syntax = "proto3"; // proto version
+
+option java_multiple_files = true; // splits req/res over proto into multiple files
+option java_package = "billing"; // puts all protocol buffer code into `billing` package
+
+// defining the protobuf stack for `billing-service`
+service BillingService {
+  rpc CreateBillingAccount (BillingRequest) returns (BillingResponse); // RPC protocol based req-res
+}
+
+// BillingRequest DTO
+message BillingRequest {
+  string patientId = 1; // a unique no. assigned to patientId field for serialization & deserialization over gRPC
+  string name = 2;
+  string email = 3;
+}
+
+// BillingResponse DTO
+message BillingResponse {
+  string accountId = 1;
+  string status = 2;
+}
