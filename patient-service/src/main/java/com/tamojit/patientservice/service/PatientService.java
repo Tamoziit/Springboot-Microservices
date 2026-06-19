@@ -4,6 +4,7 @@ import com.tamojit.patientservice.dto.PatientRequestDTO;
 import com.tamojit.patientservice.dto.PatientResponseDTO;
 import com.tamojit.patientservice.exception.EmailAlreadyExistsException;
 import com.tamojit.patientservice.exception.PatientNotFoundException;
+import com.tamojit.patientservice.grpc.BillingServiceGrpcClient;
 import com.tamojit.patientservice.mappper.PatientMapper;
 import com.tamojit.patientservice.model.Patient;
 import com.tamojit.patientservice.repository.PatientRepository;
@@ -16,10 +17,12 @@ import java.util.UUID;
 @Service
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final BillingServiceGrpcClient billingServiceGrpcClient;
 
     // constructor dependency injection
-    public PatientService(PatientRepository patientRepository) {
+    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient) {
         this.patientRepository = patientRepository;
+        this.billingServiceGrpcClient = billingServiceGrpcClient;
     }
 
     public List<PatientResponseDTO> getPatients() {
@@ -35,11 +38,18 @@ public class PatientService {
             throw new EmailAlreadyExistsException("A patient with email " + patientRequestDTO.getEmail() + " already exists");
         }
 
-        Patient patient = patientRepository.save(
+        Patient newPatient = patientRepository.save(
             PatientMapper.toModel(patientRequestDTO)
         ); // PatientRequestDTO --> Patient
 
-        return PatientMapper.toDTO(patient); // Patient --> PatientResponseDTO
+        // creating Billing acc. right when patient is created --> via inter-service gRPC request
+        billingServiceGrpcClient.createBillingAccount(
+            newPatient.getId().toString(),
+            newPatient.getName(),
+            newPatient.getEmail()
+        );
+
+        return PatientMapper.toDTO(newPatient); // Patient --> PatientResponseDTO
     }
 
     public PatientResponseDTO updatePatient(UUID id, PatientRequestDTO patientRequestDTO) {
