@@ -5,6 +5,7 @@ import com.tamojit.patientservice.dto.PatientResponseDTO;
 import com.tamojit.patientservice.exception.EmailAlreadyExistsException;
 import com.tamojit.patientservice.exception.PatientNotFoundException;
 import com.tamojit.patientservice.grpc.BillingServiceGrpcClient;
+import com.tamojit.patientservice.kafka.KafkaProducer;
 import com.tamojit.patientservice.mappper.PatientMapper;
 import com.tamojit.patientservice.model.Patient;
 import com.tamojit.patientservice.repository.PatientRepository;
@@ -18,11 +19,17 @@ import java.util.UUID;
 public class PatientService {
     private final PatientRepository patientRepository;
     private final BillingServiceGrpcClient billingServiceGrpcClient;
+    private final KafkaProducer kafkaProducer;
 
     // constructor dependency injection
-    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient) {
+    public PatientService(
+        PatientRepository patientRepository,
+        BillingServiceGrpcClient billingServiceGrpcClient,
+        KafkaProducer kafkaProducer
+    ) {
         this.patientRepository = patientRepository;
         this.billingServiceGrpcClient = billingServiceGrpcClient;
+        this.kafkaProducer = kafkaProducer;
     }
 
     public List<PatientResponseDTO> getPatients() {
@@ -48,6 +55,9 @@ public class PatientService {
             newPatient.getName(),
             newPatient.getEmail()
         );
+
+        // feeding patient to Kafka topic
+        kafkaProducer.sendEvent(newPatient);
 
         return PatientMapper.toDTO(newPatient); // Patient --> PatientResponseDTO
     }

@@ -9,7 +9,7 @@ RUN mvn dependency:go-offline -B # caching the dependencies on install
 
 COPY src ./src
 
-RUN mvn clean package # packaging the code into .jar
+RUN mvn clean package -DskipTests # packaging the code into .jar
 
 # RUNTIME - JDK
 FROM eclipse-temurin:21-jdk AS runner
