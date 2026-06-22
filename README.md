@@ -38,3 +38,10 @@ NB: Here, to translate the protobuf configs, we are duplicating the `billing_ser
 NB: A Kafka consumer/producer can consume from/produce to multiple kafka topics **simultaneously**.
 
 ![description](system-design/kafka_components.png)
+
+### API Gateway
+- An API Gateway acts as a single entry point for clients to interact with multiple microservices.
+- It routes requests to the microservices, hiding the internal addresses from the clients.
+- Handles concerns like authentication, authorization, logging, monitoring, rate-limiting & caching centrally, that are **common to all microservices**.
+
+![description](system-design/api_gateway.png)

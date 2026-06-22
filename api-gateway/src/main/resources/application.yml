@@ -1,0 +1,30 @@
+# API Gateway redirection rules setup
+server:
+  port: 4004
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: patient-service-route
+              uri: http://patient-service:4000
+              predicates:
+                - Path=/api/patients/** # which API requests to forward to patient service
+              filters:
+                - StripPrefix=1 # strips /patients/** from the incoming request at API gateway (http://localhost:4004/api/patients/**) & appends it to http://patient-service:4000 to give --> http://patient-service:4000/patients/** (since, strip-prefix=1, strips /api)
+
+            - id: api-docs-patient-service
+              uri: http://patient-service:4000
+              predicates:
+                - Path=/api-docs/patients
+              filters:
+                - RewritePath=/api-docs/patients,/v3/api-docs
+                # req at API Gateway: http://localhost:4004/api-docs/patients
+                # API Gateway rewrites it to: http://patient-service:4000/v3/api-docs
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.web: DEBUG
