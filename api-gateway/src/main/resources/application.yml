@@ -8,14 +8,23 @@ spring:
       server:
         webflux:
           routes:
+            # http://localhost:4004/auth/login -> http://auth-service:4005/login
+            - id: auth-service-route
+              uri: http://auth-service:4005
+              predicates:
+                - Path=/auth/**
+              filters:
+                - StripPrefix=1
+
             - id: patient-service-route
               uri: http://patient-service:4000
               predicates:
                 - Path=/api/patients/** # which API requests to forward to patient service
               filters:
                 - StripPrefix=1 # strips /patients/** from the incoming request at API gateway (http://localhost:4004/api/patients/**) & appends it to http://patient-service:4000 to give --> http://patient-service:4000/patients/** (since, strip-prefix=1, strips /api)
+                - JwtValidation # req under this group has to pass through JwtValidationGatewayFilterFactory
 
-            - id: api-docs-patient-service
+            - id: api-docs-patient-route
               uri: http://patient-service:4000
               predicates:
                 - Path=/api-docs/patients
@@ -23,6 +32,13 @@ spring:
                 - RewritePath=/api-docs/patients,/v3/api-docs
                 # req at API Gateway: http://localhost:4004/api-docs/patients
                 # API Gateway rewrites it to: http://patient-service:4000/v3/api-docs
+
+            - id: api-docs-auth-route
+              uri: http://auth-service:4005
+              predicates:
+                - Path=/api-docs/auth
+              filters:
+                - RewritePath=/api-docs/auth,/v3/api-docs
 
 logging:
   level:
