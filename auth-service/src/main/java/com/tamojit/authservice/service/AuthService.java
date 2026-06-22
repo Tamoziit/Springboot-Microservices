@@ -2,6 +2,7 @@ package com.tamojit.authservice.service;
 
 import com.tamojit.authservice.dto.LoginRequestDTO;
 import com.tamojit.authservice.util.JwtUtil;
+import io.jsonwebtoken.JwtException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,5 +30,14 @@ public class AuthService {
             .map(u -> jwtUtil.generateToken(u.getEmail(), u.getRole()));
 
         return token;
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            jwtUtil.validateToken(token);
+            return true; // valid token - doesn't throw an error (void)
+        } catch (JwtException e) {
+            return false; // invalid token - throws JwtException error
+        }
     }
 }
