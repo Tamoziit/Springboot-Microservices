@@ -45,3 +45,13 @@ NB: A Kafka consumer/producer can consume from/produce to multiple kafka topics 
 - Handles concerns like authentication, authorization, logging, monitoring, rate-limiting & caching centrally, that are **common to all microservices**.
 
 ![description](system-design/api_gateway.png)
+
+### Deployment Architecture using LocalStack
+**LocalStack**: A local AWS deployment environment inside Docker.
+
+![description](system-design/deployment_arch.png)
+
+**IaC workflow**:
+- Java is used to provision & design the Deployment Infrastructure.
+- The Java IaC is then converted to **CloudFormation Template** (`yaml`).
+- This template IaC is used by AWS or LocalStack to provision & create the described architecture.

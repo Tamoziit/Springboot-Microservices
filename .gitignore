@@ -29,3 +29,7 @@ replay_pid*
 .env
 
 db_volumes/
+
+# CDK
+cdk.out/
+cdk.context.json
